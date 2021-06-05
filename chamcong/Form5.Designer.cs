@@ -66,6 +66,7 @@ namespace chamcong
             // 
             this.menuItem2.Index = 1;
             this.menuItem2.Text = "In...";
+            this.menuItem2.Click += new System.EventHandler(this.menuItem2_Click);
             // 
             // Form5
             // 
@@ -75,7 +76,7 @@ namespace chamcong
             this.Controls.Add(this.customDataGridView1);
             this.Menu = this.mainMenu1;
             this.Name = "Form5";
-            this.Text = "Form5";
+            this.Text = "Tổng Hợp Các Đội";
             ((System.ComponentModel.ISupportInitialize)(this.customDataGridView1)).EndInit();
             this.ResumeLayout(false);
 

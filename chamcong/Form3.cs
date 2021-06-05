@@ -344,5 +344,64 @@ namespace chamcong
             label1.Text = fullPath;
             readExcel(fullPath);
         }
+
+        public void ToCSV(System.Data.DataTable dtDataTable, string strFilePath)
+        {
+            try
+            {
+                StreamWriter sw = new StreamWriter(
+                    new FileStream(strFilePath, FileMode.Create, FileAccess.ReadWrite),
+                    Encoding.UTF8
+                );
+
+                foreach (DataRow dr in dtDataTable.Rows)
+                {
+                    for (int i = 0; i < dtDataTable.Columns.Count; i++)
+                    {
+                        if (!Convert.IsDBNull(dr[i]))
+                        {
+                            string value = dr[i].ToString();
+                            if (value.Contains(','))
+                            {
+                                value = String.Format("\"{0}\"", value);
+                                sw.Write(value);
+                            }
+                            else
+                            {
+                                sw.Write(dr[i].ToString());
+                            }
+                        }
+                        if (i < dtDataTable.Columns.Count - 1)
+                        {
+                            sw.Write(",");
+                        }
+                    }
+                    sw.Write(sw.NewLine);
+                }
+                sw.Close();
+            }
+            catch
+            {
+                const string message = "File này đang được mở ở chương trình khác nên không thể lưu đè lên được, xin hãy đóng nó trước khi lưu";
+                const string caption = "Lỗi";
+                var result = MessageBox.Show(message, caption,
+                                             MessageBoxButtons.OK,
+                                             MessageBoxIcon.Question);
+            }
+        }
+
+
+        private void menuItem2_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.Title = "Save as";
+            saveFileDialog1.Filter = "CSV | *.csv";
+            saveFileDialog1.ShowDialog();
+            if (saveFileDialog1.FileName != "")
+            {
+                System.Data.DataTable dat = GetDataGridViewAsDataTable(customDataGridView1);
+                ToCSV(dat, saveFileDialog1.FileName);
+            }
+        }
     }
 }

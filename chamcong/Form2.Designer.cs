@@ -79,7 +79,7 @@ namespace chamcong
             this.Controls.Add(this.button1);
             this.Controls.Add(this.customDataGridView1);
             this.Name = "Form2";
-            this.Text = "Form2";
+            this.Text = "Sửa Danh Sách";
             this.Load += new System.EventHandler(this.Form2_Load);
             ((System.ComponentModel.ISupportInitialize)(this.customDataGridView1)).EndInit();
             this.ResumeLayout(false);

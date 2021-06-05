@@ -91,7 +91,7 @@ namespace chamcong
             // menuItem3
             // 
             this.menuItem3.Index = 3;
-            this.menuItem3.Text = "Lưu tháng này..";
+            this.menuItem3.Text = "Lưu thành .csv...";
             this.menuItem3.Click += new System.EventHandler(this.menuItem3_Click);
             // 
             // menuItem7
