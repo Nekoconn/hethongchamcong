@@ -182,6 +182,7 @@ namespace chamcong
 
         private void Form3_Load(object sender, EventArgs e)
         {
+            label1.Text = "";
             customDataGridView1.Columns.Add("a", "Họ và tên");
             customDataGridView1.Columns.Add("b", "Chức vụ");
             customDataGridView1.Columns.Add("c", "Đội công tác/ vị trí công tác");
@@ -341,8 +342,9 @@ namespace chamcong
         {
             exeFile = Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath);
             string fullPath = Path.Combine(exeFile, "a.xls");
-            label1.Text = fullPath;
-            readExcel(fullPath);
+            label1.Text = "Đang xử lý...";
+            readExcel(fullPath); 
+            label1.Text = "";
         }
 
         public void ToCSV(System.Data.DataTable dtDataTable, string strFilePath)

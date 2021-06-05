@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -32,6 +33,29 @@ namespace chamcong
                 for (int k = 0; k < line.Length; k++)
                 {
                     if (line[k] != ',')
+                    {
+                        customDataGridView1[i, j].Value += line[k].ToString();
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+                line = a.ReadLine();
+                j++;
+            }
+        }
+        private void readAndUpdateTab(StreamReader a)
+        {
+            string line = a.ReadLine();
+            int j = 0;
+            while (line != null)
+            {
+                int i = 0;
+                customDataGridView1.Rows.Add();
+                for (int k = 0; k < line.Length; k++)
+                {
+                    if (line[k] != '\t')
                     {
                         customDataGridView1[i, j].Value += line[k].ToString();
                     }
@@ -158,6 +182,37 @@ namespace chamcong
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        public static Stream GenerateStreamFromString(string s)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
+        }
+
+        private void Paste()
+        {
+            DataObject o = (DataObject)Clipboard.GetDataObject();
+            
+            if (o.GetDataPresent(DataFormats.StringFormat))
+            {
+
+                string s = Clipboard.GetText(TextDataFormat.UnicodeText);
+                using (var stream = GenerateStreamFromString(s))
+                {
+                    StreamReader toRead = new StreamReader(stream);
+                    readAndUpdateTab(toRead);
+                }
+            }
+        }
+        private void button3_Click(object sender, EventArgs e)
+        {
+            customDataGridView1.Rows.Clear();
+            Paste();
         }
     }
 }
