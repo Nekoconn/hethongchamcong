@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -20,7 +21,7 @@ namespace chamcong
     {
         DateTime dateTime;
         String savePath;
-        
+        String exeFile;
         public Form1()
         {
             InitializeComponent();
@@ -210,12 +211,12 @@ namespace chamcong
             }
         }
 
-        private DataTable GetDataGridViewAsDataTable(DataGridView _DataGridView)
+        private System.Data.DataTable GetDataGridViewAsDataTable(DataGridView _DataGridView)
         {
             try
             {
                 if (_DataGridView.ColumnCount == 0) return null;
-                DataTable dtSource = new DataTable();
+                System.Data.DataTable dtSource = new System.Data.DataTable();
                 //////create columns
                 foreach (DataGridViewColumn col in _DataGridView.Columns)
                 {
@@ -240,7 +241,7 @@ namespace chamcong
                 return null;
             }
         }
-        public void ToCSV(DataTable dtDataTable, string strFilePath)
+        public void ToCSV(System.Data.DataTable dtDataTable, string strFilePath)
         {
             try
             {
@@ -285,7 +286,7 @@ namespace chamcong
             }
         }
 
-        public void saveToEntry(DataTable dtDataTable, Stream strFilePath)
+        public void saveToEntry(System.Data.DataTable dtDataTable, Stream strFilePath)
         {
             try
             {
@@ -341,7 +342,7 @@ namespace chamcong
             saveFileDialog1.ShowDialog();
             if (saveFileDialog1.FileName != "")
             {
-                DataTable dat = GetDataGridViewAsDataTable(dataGridView1);
+                System.Data.DataTable dat = GetDataGridViewAsDataTable(dataGridView1);
                 ToCSV(dat, saveFileDialog1.FileName);
             }
         }
@@ -517,12 +518,56 @@ namespace chamcong
             Form3 a = new Form3(dateTime, savePath);
             a.Show();
         }
+        private void excelAppShow(string a)
+        {
+            Excel.Application xlApp = new Excel.Application();
+            Excel.Workbook xlWorkBook;
+            xlApp = new Excel.Application();
+            xlApp.DisplayAlerts = true;
+            xlWorkBook = xlApp.Workbooks.Open(a);
+            xlApp.Visible = true;
+        }
+        private void readExcel(string sFile)
+        {
+            Excel.Application xlApp = new Excel.Application();
+            Excel.Workbook xlWorkBook;
+            Excel.Worksheet xlWorkSheet;
+            xlApp = new Excel.Application();
+            xlApp.DisplayAlerts = false;
+            xlWorkBook = xlApp.Workbooks.Open(sFile);
+            xlWorkSheet = xlWorkBook.Worksheets["CHAM CONG"];
+            xlWorkSheet.Cells[7, 1].value = "Tháng " + DateTime.Now.Month.ToString() + " Năm " + DateTime.Now.Year.ToString();
+            for (int iRow = dataGridView1.RowCount - 1; iRow >= 0; iRow--)
+            {
+                Range line = (Range)xlWorkSheet.Rows[11];
+                line.Insert();
+                line = (Range)xlWorkSheet.Range["A11", "AJ11"];
+                line.Borders.LineStyle = 1;
+                line.Borders.Weight = 2;
+                line.Font.Bold = false;
+                line.Font.Italic = false;
+                line.Font.Size = 11.5;
+                xlWorkSheet.Cells[11, 1].value = iRow + 1;
+                for (int i = 2; i < 37; i++)
+                {
+                    xlWorkSheet.Cells[11, i].value = dataGridView1[i - 2, iRow].Value;
+                }
+            }
 
-
+            string saveTo = Path.Combine(exeFile, "ChamCong.xls");
+            xlWorkBook.SaveAs(saveTo, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSaveAsAccessMode.xlNoChange, XlSaveConflictResolution.xlLocalSessionChanges
+                    , Type.Missing, Type.Missing,
+                    Type.Missing, Type.Missing);
+            xlWorkBook.Close();
+            xlApp.Quit();
+            excelAppShow(saveTo);
+        }
 
         private void menuItem9_Click(object sender, EventArgs e)
         {
-            
+            exeFile = Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath);
+            string fullPath = Path.Combine(exeFile, "c" + DateTime.DaysInMonth(dateTime.Year,dateTime.Month).ToString() + ".xls");
+            readExcel(fullPath);
         }
     }
 }

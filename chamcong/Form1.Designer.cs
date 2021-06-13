@@ -123,7 +123,7 @@ namespace chamcong
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(1680, 36);
+            this.label1.Size = new System.Drawing.Size(1532, 36);
             this.label1.TabIndex = 3;
             this.label1.Text = "label1";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -132,9 +132,10 @@ namespace chamcong
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.AutoSize = true;
-            this.button3.Location = new System.Drawing.Point(1606, 9);
+            this.button3.Location = new System.Drawing.Point(1289, 9);
+            this.button3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(86, 27);
+            this.button3.Size = new System.Drawing.Size(91, 28);
             this.button3.TabIndex = 4;
             this.button3.Text = "Tháng sau";
             this.button3.UseVisualStyleBackColor = true;
@@ -144,8 +145,9 @@ namespace chamcong
             // 
             this.button4.AutoSize = true;
             this.button4.Location = new System.Drawing.Point(15, 9);
+            this.button4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(99, 27);
+            this.button4.Size = new System.Drawing.Size(100, 28);
             this.button4.TabIndex = 5;
             this.button4.Text = "Tháng trước";
             this.button4.UseVisualStyleBackColor = true;
@@ -155,9 +157,9 @@ namespace chamcong
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.Location = new System.Drawing.Point(12, 45);
+            this.label2.Location = new System.Drawing.Point(12, 46);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(1680, 36);
+            this.label2.Size = new System.Drawing.Size(1532, 36);
             this.label2.TabIndex = 6;
             this.label2.Text = "Làm Việc - X; Đi Học - H; Nghỉ phép - P; Ốm - O; Công Tác - CT; Thai Sản - Ts; Ng" +
     "oài giờ - NG";
@@ -172,10 +174,11 @@ namespace chamcong
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Location = new System.Drawing.Point(12, 92);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 50;
             this.dataGridView1.RowTemplate.Height = 24;
-            this.dataGridView1.Size = new System.Drawing.Size(1680, 509);
+            this.dataGridView1.Size = new System.Drawing.Size(1368, 389);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellValueChanged);
             this.dataGridView1.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.dataGridView1_RowsAdded);
@@ -186,12 +189,13 @@ namespace chamcong
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1704, 613);
+            this.ClientSize = new System.Drawing.Size(1392, 484);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dataGridView1);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Menu = this.mainMenu1;
             this.Name = "Form1";
             this.Text = "Chấm Công";
