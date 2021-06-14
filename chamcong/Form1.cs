@@ -518,6 +518,26 @@ namespace chamcong
             Form3 a = new Form3(dateTime, savePath);
             a.Show();
         }
+        static T[,] To2D<T>(T[][] source)
+        {
+            try
+            {
+                int FirstDim = source.Length;
+                int SecondDim = source.GroupBy(row => row.Length).Single().Key; // throws InvalidOperationException if source is not rectangular
+
+                var result = new T[FirstDim, SecondDim];
+                for (int i = 0; i < FirstDim; ++i)
+                    for (int j = 0; j < SecondDim; ++j)
+                        result[i, j] = source[i][j];
+
+                return result;
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException("The given jagged array is not rectangular.");
+            }
+        }
+
         private void excelAppShow(string a)
         {
             Excel.Application xlApp = new Excel.Application();
@@ -532,6 +552,7 @@ namespace chamcong
             Excel.Application xlApp = new Excel.Application();
             Excel.Workbook xlWorkBook;
             Excel.Worksheet xlWorkSheet;
+            xlApp.ScreenUpdating = false;
             xlApp = new Excel.Application();
             xlApp.DisplayAlerts = false;
             xlWorkBook = xlApp.Workbooks.Open(sFile);
@@ -541,19 +562,34 @@ namespace chamcong
             {
                 Range line = (Range)xlWorkSheet.Rows[11];
                 line.Insert();
-                line = (Range)xlWorkSheet.Range["A11", "AJ11"];
+                if (DateTime.DaysInMonth(dateTime.Year, dateTime.Month) == 28) line = (Range)xlWorkSheet.Range["A11", "AI11"];
+                if (DateTime.DaysInMonth(dateTime.Year, dateTime.Month) == 29) line = (Range)xlWorkSheet.Range["A11", "AJ11"];
+                if (DateTime.DaysInMonth(dateTime.Year, dateTime.Month) == 30) line = (Range)xlWorkSheet.Range["A11", "AK11"];
+                if (DateTime.DaysInMonth(dateTime.Year, dateTime.Month) == 31) line = (Range)xlWorkSheet.Range["A11", "AL11"];
                 line.Borders.LineStyle = 1;
                 line.Borders.Weight = 2;
                 line.Font.Bold = false;
                 line.Font.Italic = false;
                 line.Font.Size = 11.5;
-                xlWorkSheet.Cells[11, 1].value = iRow + 1;
-                for (int i = 2; i < 37; i++)
+                line.RowHeight = 23;
+                line.Cells[1, 1].Value = iRow + 1;
+            }
+            Excel.Range range = (Excel.Range)xlWorkSheet.Cells[11, 2];
+            range = range.get_Resize(dataGridView1.RowCount, dataGridView1.ColumnCount);
+            object[][] tableArray = GetDataGridViewAsDataTable(dataGridView1).AsEnumerable().Select(x => x.ItemArray).ToArray();
+            object[,] ttableArray = To2D(tableArray);
+            range.set_Value(Excel.XlRangeValueDataType.xlRangeValueDefault, ttableArray);
+            range.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.White);
+            for (int i = 1; i <= DateTime.DaysInMonth(dateTime.Year, dateTime.Month); i++)
+            {
+                if (getWeekday(i) == "CN" || getWeekday(i) == "T7")
                 {
-                    xlWorkSheet.Cells[11, i].value = dataGridView1[i - 2, iRow].Value;
+                    Excel.Range r = (Excel.Range)xlWorkSheet.Cells[11, i + 2];
+                    r = r.get_Resize(dataGridView1.RowCount, 1);
+                    r.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightGray);
                 }
             }
-
+            xlApp.ScreenUpdating = true;
             string saveTo = Path.Combine(exeFile, "ChamCong.xls");
             xlWorkBook.SaveAs(saveTo, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSaveAsAccessMode.xlNoChange, XlSaveConflictResolution.xlLocalSessionChanges
                     , Type.Missing, Type.Missing,
@@ -567,7 +603,9 @@ namespace chamcong
         {
             exeFile = Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath);
             string fullPath = Path.Combine(exeFile, "c" + DateTime.DaysInMonth(dateTime.Year,dateTime.Month).ToString() + ".xls");
+            label3.Text = "Đang xử lý";
             readExcel(fullPath);
+            label3.Text = "";
         }
     }
 }
