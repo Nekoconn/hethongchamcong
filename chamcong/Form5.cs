@@ -76,6 +76,57 @@ namespace chamcong
                 fs.Close();
             }
         }
+        private System.Data.DataTable GetDataGridViewAsDataTable(DataGridView _DataGridView)
+        {
+            try
+            {
+                if (_DataGridView.ColumnCount == 0) return null;
+                System.Data.DataTable dtSource = new System.Data.DataTable();
+                //////create columns
+                foreach (DataGridViewColumn col in _DataGridView.Columns)
+                {
+                    if (col.ValueType == null) dtSource.Columns.Add(col.Name, typeof(string));
+                    else dtSource.Columns.Add(col.Name, col.ValueType);
+                    dtSource.Columns[col.Name].Caption = col.HeaderText;
+                }
+                ///////insert row data
+                int count = -1;
+                foreach (DataGridViewRow row in _DataGridView.Rows)
+                {
+                    count++;
+                    DataRow drNewRow = dtSource.NewRow();
+                    foreach (DataColumn col in dtSource.Columns)
+                    {
+                        drNewRow[col.ColumnName] = row.Cells[col.ColumnName].Value;
+                    }
+                    dtSource.Rows.Add(drNewRow);
+                }
+                return dtSource;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        static T[,] To2D<T>(T[][] source)
+        {
+            try
+            {
+                int FirstDim = source.Length;
+                int SecondDim = source.GroupBy(row => row.Length).Single().Key; // throws InvalidOperationException if source is not rectangular
+
+                var result = new T[FirstDim, SecondDim];
+                for (int i = 0; i < FirstDim; ++i)
+                    for (int j = 0; j < SecondDim; ++j)
+                        result[i, j] = source[i][j];
+
+                return result;
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException("The given jagged array is not rectangular.");
+            }
+        }
         private void readExcel(string sFile)
         {
             Excel.Application xlApp = new Excel.Application();
@@ -83,6 +134,7 @@ namespace chamcong
             Excel.Worksheet xlWorkSheet;
             xlApp = new Excel.Application();
             xlApp.DisplayAlerts = false;
+            xlApp.ScreenUpdating = false;
             xlWorkBook = xlApp.Workbooks.Open(sFile);
             xlWorkSheet = xlWorkBook.Worksheets["MAU 02"];
             xlWorkSheet.Cells[4, 1].value = "Tháng " + DateTime.Now.Month.ToString() + " Năm " + DateTime.Now.Year.ToString();
@@ -97,17 +149,13 @@ namespace chamcong
                 line.Font.Italic = false;
                 line.Font.Size = 11.5;
                 xlWorkSheet.Cells[8, 1].value = iRow + 1;
-                xlWorkSheet.Cells[8, 2].value = customDataGridView1[0, iRow].Value;
-                xlWorkSheet.Cells[8, 3].value = customDataGridView1[1, iRow].Value;
-                xlWorkSheet.Cells[8, 4].value = customDataGridView1[2, iRow].Value;
-                xlWorkSheet.Cells[8, 5].value = customDataGridView1[3, iRow].Value;
-                xlWorkSheet.Cells[8, 6].value = customDataGridView1[4, iRow].Value;
-                xlWorkSheet.Cells[8, 7].value = customDataGridView1[5, iRow].Value;
-                xlWorkSheet.Cells[8, 8].value = customDataGridView1[6, iRow].Value;
-                xlWorkSheet.Cells[8, 9].value = customDataGridView1[7, iRow].Value;
-                xlWorkSheet.Cells[8, 10].value = customDataGridView1[8, iRow].Value;
-                xlWorkSheet.Cells[8, 11].value = customDataGridView1[9, iRow].Value;
             }
+            Excel.Range range = (Excel.Range)xlWorkSheet.Cells[8, 2];
+            range = range.get_Resize(customDataGridView1.RowCount, customDataGridView1.ColumnCount);
+            object[][] tableArray = GetDataGridViewAsDataTable(customDataGridView1).AsEnumerable().Select(x => x.ItemArray).ToArray();
+            object[,] ttableArray = To2D(tableArray);
+            range.set_Value(Excel.XlRangeValueDataType.xlRangeValueDefault, ttableArray);
+            xlApp.ScreenUpdating = true;
 
             string saveTo = Path.Combine(exeFile, "TongHopCacDoi.xls");
             xlWorkBook.SaveAs(saveTo, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSaveAsAccessMode.xlNoChange, XlSaveConflictResolution.xlLocalSessionChanges

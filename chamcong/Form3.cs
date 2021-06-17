@@ -296,16 +296,38 @@ namespace chamcong
             xlWorkBook = xlApp.Workbooks.Open(a);
             xlApp.Visible = true;
         }
+        static T[,] To2D<T>(T[][] source)
+        {
+            try
+            {
+                int FirstDim = source.Length;
+                int SecondDim = source.GroupBy(row => row.Length).Single().Key; // throws InvalidOperationException if source is not rectangular
+
+                var result = new T[FirstDim, SecondDim];
+                for (int i = 0; i < FirstDim; ++i)
+                    for (int j = 0; j < SecondDim; ++j)
+                        result[i, j] = source[i][j];
+
+                return result;
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException("The given jagged array is not rectangular.");
+            }
+        }
+
         private void readExcel(string sFile)
         {
             Excel.Application xlApp = new Excel.Application();
             Excel.Workbook xlWorkBook;
             Excel.Worksheet xlWorkSheet;
+            xlApp.ScreenUpdating = false;
             xlApp = new Excel.Application();
             xlApp.DisplayAlerts = false;
             xlWorkBook = xlApp.Workbooks.Open(sFile);
             xlWorkSheet = xlWorkBook.Worksheets["MAU 02"];
             xlWorkSheet.Cells[4, 1].value = "Tháng " + dateTime.Month.ToString() +" Năm " + dateTime.Year.ToString();
+            
             for (int iRow = customDataGridView1.RowCount - 1; iRow >= 0; iRow--)
             {
                 Range line = (Range)xlWorkSheet.Rows[8];
@@ -317,18 +339,14 @@ namespace chamcong
                 line.Font.Italic = false;
                 line.Font.Size = 11.5;
                 xlWorkSheet.Cells[8, 1].value = iRow + 1;
-                xlWorkSheet.Cells[8, 2].value = customDataGridView1[0, iRow].Value;
-                xlWorkSheet.Cells[8, 3].value = customDataGridView1[1, iRow].Value;
-                xlWorkSheet.Cells[8, 4].value = customDataGridView1[2, iRow].Value;
-                xlWorkSheet.Cells[8, 5].value = customDataGridView1[3, iRow].Value;
-                xlWorkSheet.Cells[8, 6].value = customDataGridView1[4, iRow].Value;
-                xlWorkSheet.Cells[8, 7].value = customDataGridView1[5, iRow].Value;
-                xlWorkSheet.Cells[8, 8].value = customDataGridView1[6, iRow].Value;
-                xlWorkSheet.Cells[8, 9].value = customDataGridView1[7, iRow].Value;
-                xlWorkSheet.Cells[8, 10].value = customDataGridView1[8, iRow].Value;
-                xlWorkSheet.Cells[8, 11].value = customDataGridView1[9, iRow].Value;
             }
+            Excel.Range range = (Excel.Range)xlWorkSheet.Cells[8, 2];
+            range = range.get_Resize(customDataGridView1.RowCount, customDataGridView1.ColumnCount);
+            object[][] tableArray = GetDataGridViewAsDataTable(customDataGridView1).AsEnumerable().Select(x => x.ItemArray).ToArray();
+            object[,] ttableArray = To2D(tableArray);
+            range.set_Value(Excel.XlRangeValueDataType.xlRangeValueDefault, ttableArray);
 
+            xlApp.ScreenUpdating = true;
             string saveTo = Path.Combine(exeFile, "TongHop.xls");
             xlWorkBook.SaveAs(saveTo, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSaveAsAccessMode.xlNoChange, XlSaveConflictResolution.xlLocalSessionChanges
                     , Type.Missing, Type.Missing,
